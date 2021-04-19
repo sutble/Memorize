@@ -12,33 +12,43 @@ struct EmojiMemoryGameView: View {
    @ObservedObject var viewModel =  EmojiMemoryGame()
     
     var body: some View {
-         HStack() {
-            ForEach(viewModel.cards) { card in
-                CardView(card: card).onTapGesture(perform: {self.viewModel.choose(card: card)})
+        GeometryReader(){geometry in
+            Grid(self.viewModel.cards) { card in
+                    CardView(card: card).onTapGesture(perform: {self.viewModel.choose(card: card)})
+                }
             }
         }
-         .font(viewModel.fontSize)
     }
-}
+
 
 
 struct CardView: View {
     var card: MemoryGame<String>.Card
     var body : some View {
-        ZStack() {
-            if card.isFaceUp {
-                RoundedRectangle(cornerRadius: 10.0).stroke(lineWidth:3)
-                Text(card.content)
+        GeometryReader(){geometry in
+            ZStack() {
+                if self.card.isFaceUp {
+                    RoundedRectangle(cornerRadius: self.cornerRadius).stroke(lineWidth:self.lineWidth)
+                    Text(self.card.content)
 
-            }
-            else {
-                RoundedRectangle(cornerRadius: 10.0)
-            }
+                }
+                else {
+                    if !self.card.isMatched {
+                        RoundedRectangle(cornerRadius: self.cornerRadius)
+                    }
+                }
+            }.font(Font.system(size:min(geometry.size.width,geometry.size.height)*self.fontScaleFactor))
         }
+        
         .padding()
         .foregroundColor(Color.orange)
         .aspectRatio(0.66, contentMode: .fit)
-        
-
     }
+    
+    //MARK: - Drawing Constants
+    
+    let cornerRadius:CGFloat = 10
+    let lineWidth:CGFloat = 3
+    let fontScaleFactor:CGFloat = 0.75
+    
 }
